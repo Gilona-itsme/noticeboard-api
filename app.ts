@@ -2,13 +2,20 @@ import express from "express";
 import type { NextFunction, Request, Response } from "express";
 import swaggerUi from "swagger-ui-express";
 import cookieParser from "cookie-parser";
-
+import errorHandler from "./src/middleware/errorHandler.ts";
+import notFoundHandler from "./src/middleware/notFoundHandler.ts"
+import authRoutes from './src/routes/auth.routes.ts';
+import announcementsRoutes from './src/routes/announcements.routes.ts';
 import { generateOpenApiDocument } from "./src/openapi.ts";
 
 const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
+
+app.use('/auth', authRoutes);
+app.use('/announcements', announcementsRoutes);
+
 const openApiDocument = generateOpenApiDocument();
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openApiDocument));
 
@@ -48,6 +55,10 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
 
   res.status(500).json({ error: "Internal server error" });
 });
+
+app.use(notFoundHandler);
+app.use(errorHandler);
+
 
 const PORT = process.env.PORT || 3000;
 
