@@ -1,0 +1,30 @@
+name: noticeboard-app
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: noticeboard-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: noticeboard
+    ports:
+      - "5433:5432"
+    volumes:
+      - noticeboard-data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: noticeboard-api
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      JWT_SECRET: ${JWT_SECRET}
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/noticeboard
+    depends_on:
+      - postgres
+
+volumes:
+  noticeboard-data:
