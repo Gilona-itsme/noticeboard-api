@@ -2,8 +2,11 @@
 import { type Request, type Response, type NextFunction } from "express";
 
 const errorHandler = (error: Error, req: Request, res: Response, next: NextFunction) => {
-    console.error('Error:', error)
-
+  if (res.headersSent) {
+    next(error);
+    return;
+  }
+  
   const prismaErrorMap: Record<string, { status: number; message: string }> = {
     P2025: { status: 404, message: 'No entry found' },
     P2003: { status: 400, message: "Linked record does not exist" },
@@ -29,6 +32,8 @@ const errorHandler = (error: Error, req: Request, res: Response, next: NextFunct
       error: 'Invalid JSON in request body',
     })
   }
+
+  console.error('Error:', error)
 
   res.status(500).json({
     error: 'Internal server error',
