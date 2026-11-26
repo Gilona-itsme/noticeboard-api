@@ -21,9 +21,9 @@ REST API для дошки оголошень: реєстрація, JWT-авт�
 
 | Шар | Технологія |
 |---|---|
-| Runtime | Node.js, TypeScript |
+| Runtime | Node.js, TypeScript (ESM) |
 | HTTP | Express |
-| ORM / БД | Prisma, PostgreSQL |
+| ORM / БД | Prisma 7, PostgreSQL 16 (Docker) |
 | Auth | jsonwebtoken, bcrypt |
 | Валідація | Zod |
 | Документація | @asteasolutions/zod-to-openapi, swagger-ui-express |
@@ -34,8 +34,10 @@ REST API для дошки оголошень: реєстрація, JWT-авт�
 git clone https://github.com/<your-username>/noticeboard-api.git
 cd noticeboard-api
 npm install
-cp .env.example .env        # заповніть змінні
-npx prisma migrate dev      # створить таблиці
+cp  .env       
+docker compose up -d        
+npx prisma migrate dev     
+npx prisma generate
 npm run dev
 ```
 
@@ -133,6 +135,7 @@ curl -X POST http://localhost:3000/announcements \
 | Команда | Що робить |
 |---|---|
 | `npm run dev` | Запуск у режимі розробки |
+| `npm run build` / `npm start` | Збірка в `dist` / запуск збірки |
 | `npx prisma migrate dev` | Застосувати міграції |
 | `npx prisma studio` | Переглянути дані в БД через GUI |
 
@@ -155,9 +158,9 @@ A REST API for a classifieds board: user registration, JWT authentication with r
 
 | Layer | Technology |
 |---|---|
-| Runtime | Node.js, TypeScript |
+| Runtime | Node.js, TypeScript (ESM) |
 | HTTP | Express |
-| ORM / DB | Prisma, PostgreSQL |
+| ORM / DB | Prisma 7, PostgreSQL 16 (Docker) |
 | Auth | jsonwebtoken, bcrypt |
 | Validation | Zod |
 | Docs | @asteasolutions/zod-to-openapi, swagger-ui-express |
@@ -168,8 +171,10 @@ A REST API for a classifieds board: user registration, JWT authentication with r
 git clone https://github.com/<your-username>/noticeboard-api.git
 cd noticeboard-api
 npm install
-cp .env.example .env        # fill in the variables
-npx prisma migrate dev      # creates the tables
+cp .env      
+docker compose up -d       
+npx prisma migrate dev     
+npx prisma generate
 npm run dev
 ```
 
@@ -267,5 +272,6 @@ curl -X POST http://localhost:3000/announcements \
 | Command | What it does |
 |---|---|
 | `npm run dev` | Start the dev server |
+| `npm run build` / `npm start` | Build to `dist` / run the build |
 | `npx prisma migrate dev` | Apply migrations |
 | `npx prisma studio` | Browse the database in a GUI |
