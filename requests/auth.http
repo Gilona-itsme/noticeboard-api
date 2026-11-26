@@ -1,0 +1,151 @@
+
+@baseUrl = http://localhost:3000
+@username = test_user1
+@email = test1@example.com
+@password = secret123
+
+
+### 1. register з валідними даними → 201, user + обидва токени, БЕЗ password
+# @name register
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "{{username}}",
+  "email": "{{email}}",
+  "password": "{{password}}",
+  "name": "Тест"
+}
+
+
+### 2. той самий username ще раз → 409 "Username or email already taken"
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "{{username}}",
+  "email": "other@example.com",
+  "password": "{{password}}",
+  "name": "Тест"
+}
+
+
+### 3. register з коротким паролем → 400 з details
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "short_pass_user",
+  "email": "short@example.com",
+  "password": "123",
+  "name": "Тест"
+}
+
+
+### 4а. login з невірним паролем → 401 "Invalid credentials"
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "{{username}}",
+  "password": "wrong_password"
+}
+
+
+### 4б. login з неіснуючим username → 401 з ТИМ САМИМ текстом
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "no_such_user",
+  "password": "{{password}}"
+}
+
+
+### 5а. login (перший раз) → 200
+# @name login1
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "{{username}}",
+  "password": "{{password}}"
+}
+
+
+### 5б. login (другий раз) → 200
+### Після цього в DBeaver: таблиця RefreshToken → для користувача лише 1 запис,
+### і token = refreshToken з цієї відповіді
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "{{username}}",
+  "password": "{{password}}"
+}
+
+
+### 6. /auth/me з REFRESH-токеном → 401 "Invalid token type"
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{login.response.body.refreshToken}}
+
+
+### 7. /auth/me без заголовка → 401
+GET {{baseUrl}}/auth/me
+
+
+### 8. /auth/me з битим токеном → 401
+GET {{baseUrl}}/auth/me
+Authorization: Bearer not.a.real.token
+
+
+### 9. /auth/me з accessToken → 200, є createdAt, немає password
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{login.response.body.accessToken}}
+
+
+### 10. refresh з accessToken → 401
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{login.response.body.accessToken}}"
+}
+
+
+### 11а. refresh → 200, нова пара токенів
+# @name refresh
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{login.response.body.refreshToken}}"
+}
+
+
+### 11б. повторний refresh ТИМ САМИМ (старим) токеном → 401 (token rotation)
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{login.response.body.refreshToken}}"
+}
+
+
+### 12а. logout з новим accessToken → 204
+POST {{baseUrl}}/auth/logout
+Authorization: Bearer {{refresh.response.body.accessToken}}
+
+
+### 12б. refresh після logout → 401 (токен видалено з БД)
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refresh.response.body.refreshToken}}"
+}
+
+
+### 13. logout без токена → 401 (маршрут захищений)
+POST {{baseUrl}}/auth/logout

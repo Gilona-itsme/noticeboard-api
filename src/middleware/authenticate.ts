@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { verifyToken } from '../utils/jwt.ts';
-import { prisma } from '../../prisma/client.ts';
+import  prisma  from '../../prisma/client.ts';
 
 export interface AuthUser {
   sub: number;
