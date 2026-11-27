@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import  prisma  from '../../prisma/client.ts';
-import { verifyToken } from '../utils/jwt.ts';
+import { verifyToken, createAccessToken, createRefreshToken } from '../utils/jwt.ts';
 import type { RegisterBody, LoginBody, RefreshBody } from '../validators/auth.validator.ts';
 
 const SALT_ROUNDS = 10;

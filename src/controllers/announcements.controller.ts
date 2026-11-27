@@ -96,7 +96,7 @@ export const updateAnnouncement = async (
 }
 
 export const deleteAnnouncement = async (
-  _req: Request,
+  req: Request,
   res: Response<unknown, { params: IdParams }>,
 ) => {
   const { id } = res.locals.params;
