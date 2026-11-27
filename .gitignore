@@ -5,3 +5,4 @@ dist
 /generated/prisma
 *.db
 *.db-journal
+!.env.example
