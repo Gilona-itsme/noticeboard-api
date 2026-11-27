@@ -9,19 +9,23 @@ extendZodWithOpenApi(z);
 
 export const registry = new OpenAPIRegistry();
 
-registry.registerComponent("securitySchemes", "bearerAuth", {
+export const bearerAuth = registry.registerComponent("securitySchemes", "bearerAuth", {
   type: "http",
   scheme: "bearer",
   bearerFormat: "JWT",
 });
 
-export function generateOpenApiDocument() {
+export const jsonContent = (schema: z.ZodType) => ({
+  'application/json': { schema },
+});
+
+export const generateOpenApiDocument = () => {
   const generator = new OpenApiGeneratorV3(registry.definitions);
 
   return generator.generateDocument({
     openapi: "3.0.0",
     info: {
-      title: "Your API",
+      title: "Noticeboard API",
       version: "1.0.0",
       description: "REST API for the application implements a bulletin board where users can publish, edit and delete their own ads",
     },
