@@ -1,5 +1,11 @@
-import type { CreateAnnouncementBody, UpdateAnnouncementBody } from '../validators/announcements.validator.ts';
+import type { Request, Response } from 'express';
 import  prisma  from '../../prisma/client.ts';
+import type { IdParams } from '../validators/common.validator.ts';
+import type {
+  ListQuery,
+  CreateAnnouncementBody,
+  UpdateAnnouncementBody,
+} from '../validators/announcements.validator.ts';
 
 const PER_PAGE = 10;
 

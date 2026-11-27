@@ -8,7 +8,7 @@
 		"start": "node dist/app.js",
 		"dev": "tsx --watch app.ts",
 		"prisma:migrate": "prisma migrate dev",
-		"prisma:generate": "prisma generate"
+		"prebuild": "prisma generate"
 	},
 	"keywords": [],
 	"author": "Ilona Hil",

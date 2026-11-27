@@ -6,6 +6,6 @@
     "rootDir": ".",
     "rewriteRelativeImportExtensions": true
   },
-  "include": ["app.ts", "src/**/*.ts", "prisma/**/*.ts"],
+  "include": ["app.ts", "src/**/*.ts", "prisma/**/*.ts", "generated/**/*.ts"],
   "exclude": ["node_modules", "dist", "prisma.config.ts"]
 }
