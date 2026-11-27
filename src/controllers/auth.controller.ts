@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import  prisma  from '../../prisma/client.ts';
-import { createTokens, verifyToken } from '../utils/jwt.ts';
+import { verifyToken } from '../utils/jwt.ts';
 import type { RegisterBody, LoginBody, RefreshBody } from '../validators/auth.validator.ts';
 
 const SALT_ROUNDS = 10;
@@ -31,12 +31,16 @@ export const register = async (req: Request<{}, {}, RegisterBody>, res: Response
     select: publicUserSelect,
   });
 
-  const tokens = createTokens(user.id);
-  await prisma.refreshToken.create({
-    data: { token: tokens.refreshToken, userId: user.id },
-  });
+  const accessToken = createAccessToken(user.id);
+  const refreshToken = createRefreshToken(user.id);
 
-  res.status(201).json({ user, ...tokens });
+  await prisma.refreshToken.create({
+    data: {
+      userId: user.id,
+      token: refreshToken,
+    },
+  });
+  res.status(201).json({ user, accessToken, refreshToken });
 };
 
 export const login = async (req: Request<{}, {}, LoginBody>, res: Response) => {
@@ -50,17 +54,26 @@ export const login = async (req: Request<{}, {}, LoginBody>, res: Response) => {
     return;
   }
 
-  const tokens = createTokens(user.id);
+  const accessToken = createAccessToken(user.id);
+  const refreshToken = createRefreshToken(user.id);
 
   await prisma.refreshToken.upsert({
-    where: { userId: user.id },
-    update: { token: tokens.refreshToken },
-    create: { token: tokens.refreshToken, userId: user.id },
+    where: {
+      userId: user.id,
+    },
+    create: {
+      userId: user.id,
+      token: refreshToken,
+    },
+    update: {
+      token: refreshToken,
+    },
   });
 
   res.status(200).json({
     user: { id: user.id, username: user.username, email: user.email, name: user.name },
-    ...tokens,
+    accessToken,
+    refreshToken,
   });
 };
 
@@ -81,14 +94,20 @@ export const refresh = async (req: Request<{}, {}, RefreshBody>, res: Response) 
     return;
   }
 
-  const tokens = createTokens(stored.userId);
+  const accessToken = createAccessToken(stored.userId);
+  const refreshToken = createRefreshToken(stored.userId);
 
   await prisma.$transaction([
     prisma.refreshToken.delete({ where: { id: stored.id } }),
-    prisma.refreshToken.create({ data: { token: tokens.refreshToken, userId: stored.userId } }),
+    prisma.refreshToken.create({
+      data: {
+        userId: stored.userId,
+        token: refreshToken,
+      },
+    }),
   ]);
 
-  res.status(200).json(tokens);
+  res.status(200).json({ accessToken, refreshToken });
 };
 
 export const logout = async (req: Request, res: Response) => {
@@ -99,7 +118,7 @@ export const logout = async (req: Request, res: Response) => {
 export const me = async (req: Request, res: Response) => {
   const user = await prisma.user.findUnique({
     where: { id: req.user!.sub },
-    select: { ...publicUserSelect, createdAt: true },
+    omit: { password: true },
   });
 
   if (!user) {

@@ -37,7 +37,7 @@ const authenticate = async (req: Request, res: Response, next: NextFunction) => 
   const userId = Number(data.sub);
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { id: true, username: true },
+    omit: { password: true },
   });
   if (!user) {
     res.status(401).json({ message: 'User not found' });

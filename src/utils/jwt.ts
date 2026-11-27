@@ -24,10 +24,6 @@ export const createRefreshToken = (userId: number) =>
     { expiresIn: '7d' },
   );
 
-export const createTokens = (userId: number) => ({
-  accessToken: createAccessToken(userId),
-  refreshToken: createRefreshToken(userId),
-});
 
 type VerifyResult =
   | { data: TokenPayload; error: null }

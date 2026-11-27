@@ -1,6 +1,24 @@
+### =========================================================
+### CRUD оголошень — повний набір тестів (REST Client)
+###
+###   ПО ПОРЯДКУ згори вниз, весь файл за один раз:
+###   access-токен живе 15 хв. Якщо отримала "Token expired" —
+###   почни файл спочатку.
+### • ПЕРЕД КОЖНИМ ПОВТОРНИМ ЗАПУСКОМ зміни @tag (qa1 → qa2 → …),
+###   щоб тести списку бачили тільки свої 12 оголошень.
+### • Очікування написані для ФІНАЛЬНОЇ версії (з ownership).
+###   Розділ 6 окремо показує, що буде до кроку 8.
+### =========================================================
 
 @baseUrl = http://localhost:3000
+@tag = qa2
 
+
+### =========================================================
+### 0. ПІДГОТОВКА: два користувачі + 12 оголошень від A
+### 6 з "ноутбук" (різний регістр), 6 з "велосипед"
+### Створюються по черзі: #01 — найстаріше, #12 — найновіше
+### =========================================================
 
 ### 0а. Користувач A (автор) → 201
 # @name userA
@@ -28,11 +46,309 @@ Content-Type: application/json
 }
 
 
+### S01. Оголошення #01 → 201
+# @name seed01
+POST {{baseUrl}}/announcements
+Content-Type: application/json
+Authorization: Bearer {{userA.response.body.accessToken}}
+
+{
+  "title": "{{tag}} Ноутбук 01",
+  "description": "Тестове оголошення номер 01 для перевірки списку",
+  "price": 1000,
+  "category": "sale"
+}
+
+
+### S02. Оголошення #02 → 201
+POST {{baseUrl}}/announcements
+Content-Type: application/json
+Authorization: Bearer {{userA.response.body.accessToken}}
+
+{
+  "title": "{{tag}} Велосипед 02",
+  "description": "Тестове оголошення номер 02 для перевірки списку",
+  "price": 2000,
+  "category": "sale"
+}
+
+
+### S03. Оголошення #03 → 201
+POST {{baseUrl}}/announcements
+Content-Type: application/json
+Authorization: Bearer {{userA.response.body.accessToken}}
+
+{
+  "title": "{{tag}} НОУТБУК 03",
+  "description": "Тестове оголошення номер 03 для перевірки списку",
+  "price": 3000,
+  "category": "sale"
+}
+
+
+### S04. Оголошення #04 → 201
+POST {{baseUrl}}/announcements
+Content-Type: application/json
+Authorization: Bearer {{userA.response.body.accessToken}}
+
+{
+  "title": "{{tag}} Велосипед 04",
+  "description": "Тестове оголошення номер 04 для перевірки списку",
+  "price": 4000,
+  "category": "sale"
+}
+
+
+### S05. Оголошення #05 → 201
+POST {{baseUrl}}/announcements
+Content-Type: application/json
+Authorization: Bearer {{userA.response.body.accessToken}}
+
+{
+  "title": "{{tag}} ноутбук 05",
+  "description": "Тестове оголошення номер 05 для перевірки списку",
+  "price": 5000,
+  "category": "sale"
+}
+
+
+### S06. Оголошення #06 → 201
+POST {{baseUrl}}/announcements
+Content-Type: application/json
+Authorization: Bearer {{userA.response.body.accessToken}}
+
+{
+  "title": "{{tag}} Велосипед 06",
+  "description": "Тестове оголошення номер 06 для перевірки списку",
+  "price": 6000,
+  "category": "sale"
+}
+
+
+### S07. Оголошення #07 → 201
+POST {{baseUrl}}/announcements
+Content-Type: application/json
+Authorization: Bearer {{userA.response.body.accessToken}}
+
+{
+  "title": "{{tag}} Ноутбук 07",
+  "description": "Тестове оголошення номер 07 для перевірки списку",
+  "price": 7000,
+  "category": "sale"
+}
+
+
+### S08. Оголошення #08 → 201
+POST {{baseUrl}}/announcements
+Content-Type: application/json
+Authorization: Bearer {{userA.response.body.accessToken}}
+
+{
+  "title": "{{tag}} ВЕЛОСИПЕД 08",
+  "description": "Тестове оголошення номер 08 для перевірки списку",
+  "price": 8000,
+  "category": "sale"
+}
+
+
+### S09. Оголошення #09 → 201
+POST {{baseUrl}}/announcements
+Content-Type: application/json
+Authorization: Bearer {{userA.response.body.accessToken}}
+
+{
+  "title": "{{tag}} НОУТБУК 09",
+  "description": "Тестове оголошення номер 09 для перевірки списку",
+  "price": 9000,
+  "category": "sale"
+}
+
+
+### S10. Оголошення #10 → 201
+POST {{baseUrl}}/announcements
+Content-Type: application/json
+Authorization: Bearer {{userA.response.body.accessToken}}
+
+{
+  "title": "{{tag}} велосипед 10",
+  "description": "Тестове оголошення номер 10 для перевірки списку",
+  "price": 10000,
+  "category": "sale"
+}
+
+
+### S11. Оголошення #11 → 201
+POST {{baseUrl}}/announcements
+Content-Type: application/json
+Authorization: Bearer {{userA.response.body.accessToken}}
+
+{
+  "title": "{{tag}} ноутбук 11",
+  "description": "Тестове оголошення номер 11 для перевірки списку",
+  "price": 11000,
+  "category": "sale"
+}
+
+
+### S12. Оголошення #12 → 201
+# @name seed12
+POST {{baseUrl}}/announcements
+Content-Type: application/json
+Authorization: Bearer {{userA.response.body.accessToken}}
+
+{
+  "title": "{{tag}} Велосипед 12",
+  "description": "Тестове оголошення номер 12 для перевірки списку",
+  "price": 12000,
+  "category": "sale"
+}
+
+
 ### =========================================================
-### POST /announcements — СТВОРЕННЯ
+### 1. GET /announcements — СПИСОК
 ### =========================================================
 
-### 1. Без токена → 401
+### L1. Без параметрів → 200
+### кожен елемент data має user (id, username, email, name) БЕЗ password
+GET {{baseUrl}}/announcements
+
+### --- Пагінація  ---
+
+### L2. Сторінка 1 → 200
+### Записи #12 … #03
+GET {{baseUrl}}/announcements?search={{tag}}&page=1
+
+
+### L3. Сторінка 2 → 200
+### data.length = 2 (#02, #01), page = 2
+GET {{baseUrl}}/announcements?search={{tag}}&page=2
+
+
+### L4. Сторінка за межами → 200
+### data = [], total = 12, page = 3, totalPages = 2
+GET {{baseUrl}}/announcements?search={{tag}}&page=3
+
+
+### L5. page = 0 → 400
+GET {{baseUrl}}/announcements?page=0
+
+
+### L6. page = abc → 400
+GET {{baseUrl}}/announcements?page=abc
+
+
+### L7. page = 1.5 → 400
+GET {{baseUrl}}/announcements?page=1.5
+
+
+### --- Пошук по title без урахування регістру ---
+### Кирилиця в URL закодована: REST Client сам її не кодує
+
+### L8. "ноутбук" (нижній регістр) → 200
+### total = 6: #01, #03, #05, #07, #09, #11
+GET {{baseUrl}}/announcements?search={{tag}}%20%D0%BD%D0%BE%D1%83%D1%82%D0%B1%D1%83%D0%BA
+
+
+### L9. "НОУТБУК" (верхній регістр) → 200
+### ті самі 6 записів
+GET {{baseUrl}}/announcements?search={{tag}}%20%D0%9D%D0%9E%D0%A3%D0%A2%D0%91%D0%A3%D0%9A
+
+
+### L10. "нОуТбУк" (змішаний) → 200
+### ті самі 6 записів
+GET {{baseUrl}}/announcements?search={{tag}}%20%D0%BD%D0%9E%D1%83%D0%A2%D0%B1%D0%A3%D0%BA
+
+
+### L11. Тег великими літерами → 200
+### Якщо @tag = qa2, пиши QA2. Очікування: total = 12
+GET {{baseUrl}}/announcements?search=QA1
+
+
+### L12. Частина слова "велос" → 200
+### total = 6 (тільки велосипеди)
+GET {{baseUrl}}/announcements?search={{tag}}%20%D0%B2%D0%B5%D0%BB%D0%BE%D1%81
+
+
+### L13. Немає збігів → 200
+### data = [], total = 0, totalPages = 0
+GET {{baseUrl}}/announcements?search=zzz_no_such_title_zzz
+
+
+### L14. Порожній search → 200
+### усі оголошення, як у L1
+GET {{baseUrl}}/announcements?search=
+
+
+### L15. Пошук НЕ йде по description → 200
+### total = 0 (слово "перевірки" є тільки в описах)
+GET {{baseUrl}}/announcements?search=%D0%BF%D0%B5%D1%80%D0%B5%D0%B2%D1%96%D1%80%D0%BA%D0%B8
+
+
+### --- Сортування ---
+
+### L16. Без sort (default newest) → 200
+### data[0] = #12, data[9] = #03
+GET {{baseUrl}}/announcements?search={{tag}}
+
+
+### L17. sort=newest → 200
+### як L16
+GET {{baseUrl}}/announcements?search={{tag}}&sort=newest
+
+
+### L18. sort=oldest → 200
+### data[0] = #01, data[9] = #10
+GET {{baseUrl}}/announcements?search={{tag}}&sort=oldest
+
+
+### L19. sort=oldest, сторінка 2 → 200
+### data = [#11, #12]
+GET {{baseUrl}}/announcements?search={{tag}}&sort=oldest&page=2
+
+
+### L20. Невалідний sort → 400
+GET {{baseUrl}}/announcements?sort=random
+
+
+### L21. Комбінація: ноутбуки, найстаріші першими → 200
+### total = 6, порядок #01, #03, #05, #07, #09, #11
+GET {{baseUrl}}/announcements?search={{tag}}%20%D0%BD%D0%BE%D1%83%D1%82%D0%B1%D1%83%D0%BA&sort=oldest&page=1
+
+
+### =========================================================
+### 2. GET /announcements/:id — ОДНЕ ОГОЛОШЕННЯ 
+### =========================================================
+
+### G1. Існуюче → 200
+### повний об'єкт + user (автор A), БЕЗ password
+GET {{baseUrl}}/announcements/{{seed01.response.body.id}}
+
+
+### G2. Неіснуюче → 404
+GET {{baseUrl}}/announcements/999999
+
+
+### G3. Невалідний id (рядок) → 400
+GET {{baseUrl}}/announcements/abc
+
+
+### G4. Невалідний id (від'ємний) → 400
+GET {{baseUrl}}/announcements/-1
+
+
+### G5. Невалідний id (дробовий) → 400
+GET {{baseUrl}}/announcements/1.5
+
+
+### G6. Публічний: працює без токена (як G1) → 200
+GET {{baseUrl}}/announcements/{{seed01.response.body.id}}
+
+
+### =========================================================
+### 3. POST /announcements
+### =========================================================
+
+### C1. Без токена → 401
 POST {{baseUrl}}/announcements
 Content-Type: application/json
 
@@ -44,7 +360,7 @@ Content-Type: application/json
 }
 
 
-### 2. З битим токеном → 401
+### C2. З битим токеном → 401
 POST {{baseUrl}}/announcements
 Content-Type: application/json
 Authorization: Bearer not.a.real.token
@@ -57,7 +373,20 @@ Authorization: Bearer not.a.real.token
 }
 
 
-### 3. Порожнє тіло → 400, details по всіх 4 полях
+### C3. Refresh-токен замість access → 401
+POST {{baseUrl}}/announcements
+Content-Type: application/json
+Authorization: Bearer {{userA.response.body.refreshToken}}
+
+{
+  "title": "Продам велосипед",
+  "description": "Гірський велосипед, 21 швидкість",
+  "price": 8000,
+  "category": "sale"
+}
+
+
+### C4. Порожнє тіло → 400, details по всіх 4 полях
 POST {{baseUrl}}/announcements
 Content-Type: application/json
 Authorization: Bearer {{userA.response.body.accessToken}}
@@ -65,7 +394,7 @@ Authorization: Bearer {{userA.response.body.accessToken}}
 {}
 
 
-### 4. title коротший за 5 символів → 400 (title)
+### C5. title < 5 символів → 400
 POST {{baseUrl}}/announcements
 Content-Type: application/json
 Authorization: Bearer {{userA.response.body.accessToken}}
@@ -78,7 +407,7 @@ Authorization: Bearer {{userA.response.body.accessToken}}
 }
 
 
-### 5. title довший за 50 символів → 400 (title)
+### C6. title > 50 символів → 400
 POST {{baseUrl}}/announcements
 Content-Type: application/json
 Authorization: Bearer {{userA.response.body.accessToken}}
@@ -91,7 +420,7 @@ Authorization: Bearer {{userA.response.body.accessToken}}
 }
 
 
-### 6. description коротший за 10 символів → 400 (description)
+### C7. description < 10 символів → 400
 POST {{baseUrl}}/announcements
 Content-Type: application/json
 Authorization: Bearer {{userA.response.body.accessToken}}
@@ -104,7 +433,7 @@ Authorization: Bearer {{userA.response.body.accessToken}}
 }
 
 
-### 7. price = 0 → 400 (має бути більше нуля)
+### C8. price = 0 → 400 (має бути > 0)
 POST {{baseUrl}}/announcements
 Content-Type: application/json
 Authorization: Bearer {{userA.response.body.accessToken}}
@@ -117,7 +446,20 @@ Authorization: Bearer {{userA.response.body.accessToken}}
 }
 
 
-### 8. price рядком → 400 (очікується число)
+### C9. price від'ємна → 400
+POST {{baseUrl}}/announcements
+Content-Type: application/json
+Authorization: Bearer {{userA.response.body.accessToken}}
+
+{
+  "title": "Продам велосипед",
+  "description": "Гірський велосипед, 21 швидкість",
+  "price": -500,
+  "category": "sale"
+}
+
+
+### C10. price рядком → 400
 POST {{baseUrl}}/announcements
 Content-Type: application/json
 Authorization: Bearer {{userA.response.body.accessToken}}
@@ -130,7 +472,7 @@ Authorization: Bearer {{userA.response.body.accessToken}}
 }
 
 
-### 9. Невідома категорія → 400 (sale | service | job | other)
+### C11. Невідома категорія → 400
 POST {{baseUrl}}/announcements
 Content-Type: application/json
 Authorization: Bearer {{userA.response.body.accessToken}}
@@ -143,8 +485,20 @@ Authorization: Bearer {{userA.response.body.accessToken}}
 }
 
 
-### 10. Валідне оголошення від A → 201
-### Перевір: є id, createdAt, updatedAt, user = автор A, немає password
+### C12. Без category → 400
+POST {{baseUrl}}/announcements
+Content-Type: application/json
+Authorization: Bearer {{userA.response.body.accessToken}}
+
+{
+  "title": "Продам велосипед",
+  "description": "Гірський велосипед, 21 швидкість",
+  "price": 8000
+}
+
+
+### C13. Валідне від A → 201
+### є id, createdAt, updatedAt; user = автор A; createdAt == updatedAt; без password
 # @name created
 POST {{baseUrl}}/announcements
 Content-Type: application/json
@@ -158,9 +512,9 @@ Authorization: Bearer {{userA.response.body.accessToken}}
 }
 
 
-### 11. Спроба підставити чужого автора через userId → 201,
-### але user.id у відповіді = A (поле userId з тіла ігнорується)
-# @name createdWithFakeUser
+### C14. Підміна автора через userId → 201
+### user.id у відповіді = A (userId з тіла ігнорується)
+# @name createdFake
 POST {{baseUrl}}/announcements
 Content-Type: application/json
 Authorization: Bearer {{userA.response.body.accessToken}}
@@ -174,20 +528,32 @@ Authorization: Bearer {{userA.response.body.accessToken}}
 }
 
 
-### =========================================================
-### PATCH /announcements/:id — ОНОВЛЕННЯ
-### =========================================================
-
-### 12. Без токена → 401
-PATCH {{baseUrl}}/announcements/{{created.response.body.id}}
+### C15. Валідне від B (для тестів ownership) → 201
+# @name createdByB
+POST {{baseUrl}}/announcements
 Content-Type: application/json
+Authorization: Bearer {{userB.response.body.accessToken}}
 
 {
-  "price": 6500
+  "title": "Надаю послуги ремонту",
+  "description": "Ремонт техніки вдома, швидко та якісно",
+  "price": 500,
+  "category": "service"
 }
 
 
-### 13. Порожній об'єкт {} → 400 "At least one field must be provided"
+### =========================================================
+### 4. PATCH /announcements/:id — ОНОВЛЕННЯ 
+### =========================================================
+
+### U1. Без токена → 401
+PATCH {{baseUrl}}/announcements/{{created.response.body.id}}
+Content-Type: application/json
+
+{ "price": 6500 }
+
+
+### U2. Порожній {} → 400 "At least one field must be provided"
 PATCH {{baseUrl}}/announcements/{{created.response.body.id}}
 Content-Type: application/json
 Authorization: Bearer {{userA.response.body.accessToken}}
@@ -195,69 +561,67 @@ Authorization: Bearer {{userA.response.body.accessToken}}
 {}
 
 
-### 14. Тільки невідоме поле → 400 (Zod відкидає userId, лишається {})
+### U3. Тільки невідоме поле → 400
+### Zod відкидає userId → лишається {}
 PATCH {{baseUrl}}/announcements/{{created.response.body.id}}
 Content-Type: application/json
 Authorization: Bearer {{userA.response.body.accessToken}}
 
-{
-  "userId": 999999
-}
+{ "userId": 999999 }
 
 
-### 15. Невалідне значення одного поля → 400 (price > 0)
+### U4. price ≤ 0 → 400
 PATCH {{baseUrl}}/announcements/{{created.response.body.id}}
 Content-Type: application/json
 Authorization: Bearer {{userA.response.body.accessToken}}
 
-{
-  "price": -100
-}
+{ "price": -100 }
 
 
-### 16. Невалідна категорія → 400
+### U5. Невалідна категорія → 400
 PATCH {{baseUrl}}/announcements/{{created.response.body.id}}
 Content-Type: application/json
 Authorization: Bearer {{userA.response.body.accessToken}}
 
-{
-  "category": "rent"
-}
+{ "category": "rent" }
 
 
-### 17. Невалідний id → 400
+### U6. title < 5 символів → 400
+PATCH {{baseUrl}}/announcements/{{created.response.body.id}}
+Content-Type: application/json
+Authorization: Bearer {{userA.response.body.accessToken}}
+
+{ "title": "Абв" }
+
+
+### U7. Невалідний id → 400
 PATCH {{baseUrl}}/announcements/abc
 Content-Type: application/json
 Authorization: Bearer {{userA.response.body.accessToken}}
 
-{
-  "price": 6500
-}
+{ "price": 6500 }
 
 
-### 18. Неіснуючий id → 404
+### U8. Неіснуючий id → 404
 PATCH {{baseUrl}}/announcements/999999
 Content-Type: application/json
 Authorization: Bearer {{userA.response.body.accessToken}}
 
-{
-  "price": 6500
-}
+{ "price": 6500 }
 
 
-### 19. Оновлення ОДНОГО поля → 200
-### Перевір: price = 6500, title/description/category НЕ змінились,
-### createdAt той самий, updatedAt НОВІШИЙ за createdAt
+### U9. Одне поле → 200
+### price = 6500; title/description/category НЕ змінились;
+### createdAt той самий, updatedAt НОВІШИЙ за createdAt (2 бали за @updatedAt)
 PATCH {{baseUrl}}/announcements/{{created.response.body.id}}
 Content-Type: application/json
 Authorization: Bearer {{userA.response.body.accessToken}}
 
-{
-  "price": 3500
-}
+{ "price": 6500 }
 
 
-### 20. Оновлення КІЛЬКОХ полів → 200, змінились title і category
+### U10. Кілька полів → 200
+### змінились title і category, price лишився 6500
 PATCH {{baseUrl}}/announcements/{{created.response.body.id}}
 Content-Type: application/json
 Authorization: Bearer {{userA.response.body.accessToken}}
@@ -268,63 +632,95 @@ Authorization: Bearer {{userA.response.body.accessToken}}
 }
 
 
-### 21. Перевірка через GET → 200, видно всі зміни з кроків 19–20
+### U11. Перевірка через GET → 200, видно всі зміни U9–U10
 GET {{baseUrl}}/announcements/{{created.response.body.id}}
 
 
-### 22. OWNERSHIP: B оновлює оголошення A
-### Крок 7 (без ownership) → 200 ❗ (так і має бути до кроку 8)
-### Крок 8 (з ownership)   → 403 "Access denied"
-PATCH {{baseUrl}}/announcements/{{created.response.body.id}}
-Content-Type: application/json
-Authorization: Bearer {{userB.response.body.accessToken}}
-
-{
-  "price": 1
-}
-
-
 ### =========================================================
-### DELETE /announcements/:id — ВИДАЛЕННЯ
+### 5. DELETE /announcements/:id — ВИДАЛЕННЯ 
 ### =========================================================
 
-### 23. Без токена → 401
+### D1. Без токена → 401
 DELETE {{baseUrl}}/announcements/{{created.response.body.id}}
 
 
-### 24. Невалідний id → 400
+### D2. Невалідний id → 400
 DELETE {{baseUrl}}/announcements/abc
 Authorization: Bearer {{userA.response.body.accessToken}}
 
 
-### 25. Неіснуючий id → 404
+### D3. Неіснуючий id → 404
 DELETE {{baseUrl}}/announcements/999999
 Authorization: Bearer {{userA.response.body.accessToken}}
 
 
-### 26. OWNERSHIP: B видаляє оголошення A
-### Крок 7 (без ownership) → 204 ❗ (і наступні кроки вже дадуть 404)
-### Крок 8 (з ownership)   → 403 "Access denied"
-DELETE {{baseUrl}}/announcements/{{createdWithFakeUser.response.body.id}}
-Authorization: Bearer {{userB.response.body.accessToken}}
-
-
-### 27. Автор видаляє своє оголошення → 204, тіло ПОРОЖНЄ
+### D4. Автор видаляє своє → 204, тіло ПОРОЖНЄ
 DELETE {{baseUrl}}/announcements/{{created.response.body.id}}
 Authorization: Bearer {{userA.response.body.accessToken}}
 
 
-### 28. Після видалення → 404
+### D5. Після видалення → 404
 GET {{baseUrl}}/announcements/{{created.response.body.id}}
 
 
-### 29. Повторне видалення → 404
+### D6. Повторне видалення → 404
 DELETE {{baseUrl}}/announcements/{{created.response.body.id}}
 Authorization: Bearer {{userA.response.body.accessToken}}
 
 
-### 30. Прибирання: A видаляє оголошення з кроку 11
-### Крок 7 → 404 (його вже видалив B на кроці 26)
-### Крок 8 → 204
-DELETE {{baseUrl}}/announcements/{{createdWithFakeUser.response.body.id}}
+### =========================================================
+### 6. OWNERSHIP 
+### A намагається змінити/видалити оголошення B
+### До кроку 8 (без ownership): O1 → 200, O3 → 204, і далі 404 ❗
+### Після кроку 8: O1 → 403, O3 → 403
+### =========================================================
+
+### O1. A оновлює оголошення B → 403 "Access denied"
+PATCH {{baseUrl}}/announcements/{{createdByB.response.body.id}}
+Content-Type: application/json
+Authorization: Bearer {{userA.response.body.accessToken}}
+
+{ "price": 1 }
+
+
+### O2. Оголошення B не змінилось → 200, price = 500
+GET {{baseUrl}}/announcements/{{createdByB.response.body.id}}
+
+
+### O3. A видаляє оголошення B → 403 "Access denied"
+DELETE {{baseUrl}}/announcements/{{createdByB.response.body.id}}
+Authorization: Bearer {{userA.response.body.accessToken}}
+
+
+### O4. Оголошення B все ще існує → 200
+GET {{baseUrl}}/announcements/{{createdByB.response.body.id}}
+
+
+### O5. 403 не маскує 404: неіснуючий id → 404 (а не 403)
+PATCH {{baseUrl}}/announcements/999999
+Content-Type: application/json
+Authorization: Bearer {{userB.response.body.accessToken}}
+
+{ "price": 1 }
+
+
+### O6. B оновлює своє → 200
+PATCH {{baseUrl}}/announcements/{{createdByB.response.body.id}}
+Content-Type: application/json
+Authorization: Bearer {{userB.response.body.accessToken}}
+
+{ "price": 700 }
+
+
+### O7. B видаляє своє → 204
+DELETE {{baseUrl}}/announcements/{{createdByB.response.body.id}}
+Authorization: Bearer {{userB.response.body.accessToken}}
+
+
+### =========================================================
+### 7. ПРИБИРАННЯ (необов'язково)
+### =========================================================
+
+### X1. A видаляє оголошення з C14 → 204
+DELETE {{baseUrl}}/announcements/{{createdFake.response.body.id}}
 Authorization: Bearer {{userA.response.body.accessToken}}

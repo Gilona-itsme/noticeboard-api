@@ -8,8 +8,8 @@ import {
   updateAnnouncementSchema,
 } from '../validators/announcements.validator.ts';
 import {
-//   getAnnouncements,
-//   getAnnouncementById,
+  getAnnouncements,
+  getAnnouncementById,
   createAnnouncement,
   updateAnnouncement,
   deleteAnnouncement,
@@ -17,8 +17,8 @@ import {
 
 const router = Router();
 
-// router.get('/', validateQuery(listQuerySchema), getAnnouncements);
-// router.get('/:id', validateParams(idParamsSchema), getAnnouncementById);
+router.get('/', validateQuery(listQuerySchema), getAnnouncements);
+router.get('/:id', validateParams(idParamsSchema), getAnnouncementById);
 router.post('/', authenticate, validateBody(createAnnouncementSchema), createAnnouncement);
 router.patch(
   '/:id',

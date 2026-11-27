@@ -21,6 +21,9 @@ export const refreshSchema = z.object({
   refreshToken: z.string().min(1),
 });
 
+export type RegisterBody = z.infer<typeof registerSchema>;
+export type LoginBody = z.infer<typeof loginSchema>;
+export type RefreshBody = z.infer<typeof refreshSchema>;
 
 export const publicUserSchema = z.object({
   id: z.number(),
@@ -38,6 +41,3 @@ export const authResponseSchema = tokensSchema.extend({ user: publicUserSchema }
 
 export const meResponseSchema = publicUserSchema.extend({ createdAt: z.string() });
 
-export type RegisterBody = z.infer<typeof registerSchema>;
-export type LoginBody = z.infer<typeof loginSchema>;
-export type RefreshBody = z.infer<typeof refreshSchema>;

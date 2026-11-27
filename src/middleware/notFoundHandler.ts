@@ -1,13 +1,11 @@
-import { type Request, type Response, type NextFunction } from "express";
+import type { RequestHandler } from 'express';
 
-
- const notFoundHandler = (req: Request, res: Response) => {
-    res.status(404).json({
-      error: 'Route not found',
-      path: req.path,
-      method: req.method,
-    })
-  }
-
+const notFoundHandler: RequestHandler = (req, res) => {
+  res.status(404).json({
+    message: 'Route not found',
+    path: req.path,
+    method: req.method,
+  });
+};
 
 export default notFoundHandler;

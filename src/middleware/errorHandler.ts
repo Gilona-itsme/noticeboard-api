@@ -21,7 +21,7 @@ const errorHandler = (error: Error, req: Request, res: Response, next: NextFunct
     if (mappedError) {
       const { status, message } = mappedError
       return res.status(status).json({
-        error: message,
+        message: message,
         code: error.code,
       })
     }
@@ -29,14 +29,14 @@ const errorHandler = (error: Error, req: Request, res: Response, next: NextFunct
 
   if (error instanceof SyntaxError && 'status' in error && (error as any).status === 400 && 'body' in error) {
     return res.status(400).json({
-      error: 'Invalid JSON in request body',
+      message: 'Invalid JSON in request body',
     })
   }
 
   console.error('Error:', error)
 
   res.status(500).json({
-    error: 'Internal server error',
+    message: 'Internal server error',
   })
 }
 
